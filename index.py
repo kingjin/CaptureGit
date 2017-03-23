@@ -45,30 +45,39 @@ def CloneGitByUrl(gitUrl,gitSavePath):
     except Exception as ex:
         print "Error"+str(ex);
 
-print ("开始执行代码")
-#抓取指定列表页
-list =[1,2,3,4,5];
-#创建线程池 5线程
-pool=threadpool.ThreadPool(5);
-for pageItem in list:
-    print (str(pageItem)+" =======")
-    content= Capture('git',pageItem);
-    urlList= AnalysisContent(content)
-    #获取当前路径
-    osPath=os.getcwd();
-    saveFile=open(osPath+"\\"+str(pageItem)+".txt","w")
-    print saveFile;
-    for url in urlList:
-        gitUrl=gitpro_base_url.format(path=url)
-        saveFile.write(gitUrl);
-        saveFile.write("\r\n");
-        gitSavePath=osPath+"\\"+str(url).replace('/','_').replace('-','_');
-        a = [gitUrl, gitSavePath];
-        parms = [(a, None)];
-        requests= threadpool.makeRequests(CloneGitByUrl,parms)
-        for req in requests:
-            pool.putRequest(req)
 
-    saveFile.close();
+if __name__== "__main__":
+    print (u"开始执行代码")
 
-pool.wait();
+    if len(sys.argv)<=1:
+        print (u"没有参数")
+        sys.exit()
+
+    keys = sys.argv[1]
+    print keys
+    #抓取指定列表页
+    list =[1,2,3];
+    #创建线程池 5线程
+    pool=threadpool.ThreadPool(5);
+    for pageItem in list:
+        print (str(pageItem)+" =======")
+        content= Capture(keys,pageItem);
+        urlList= AnalysisContent(content)
+        #获取当前路径
+        osPath=os.getcwd();
+        saveFile=open(osPath+"\\"+str(pageItem)+".txt","w")
+        print saveFile;
+        for url in urlList:
+            gitUrl=gitpro_base_url.format(path=url)
+            saveFile.write(gitUrl);
+            saveFile.write("\r\n");
+            gitSavePath=osPath+"\\"+keys+"\\"+str(url).replace('/','_').replace('-','_');
+            a = [gitUrl, gitSavePath];
+            parms = [(a, None)];
+            requests= threadpool.makeRequests(CloneGitByUrl,parms)
+            for req in requests:
+                pool.putRequest(req)
+
+        saveFile.close();
+
+    pool.wait();
